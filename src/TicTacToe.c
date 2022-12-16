@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <mosquitto.h>
 
 #define ROWS 3
 #define COLS 3
