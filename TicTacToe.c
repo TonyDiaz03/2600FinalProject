@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <mosquitto.h>
 
 #define ROWS 3
 #define COLS 3
@@ -22,7 +23,7 @@ void printBoard(char board[ROWS][COLS]) {
     }
 }
 
-bool makeMove(char board[ROWS][COLS], int row, int col, int player) {
+bool playerMove(char board[ROWS][COLS], int row, int col, int player) {
     if (board[row][col] != ' ') {
         // Cell is already occupied
         return false;
@@ -89,7 +90,7 @@ int main() {
         scanf("%d %d", &row, &col);
 
         // Make move
-        if (!makeMove(board, row, col, player)) {
+        if (!playerMove(board, row, col, player)) {
             printf("Invalid move. Try again.\n");
             continue;
         }
