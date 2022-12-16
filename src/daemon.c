@@ -1,35 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
-#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-void checkStart()
-{
-    while (1) {
-        // Check if the ESP32 has set the "START_GAME" environment variable
-        char* start_game = getenv("START_GAME");
-        if (start_game != NULL) {
-            // Start the game
-            system("./TicTacToe");
+int main() {
+  // Run the program in the background as a daemon
+  pid_t pid = fork();
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+  if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+  umask(0);
+  pid_t sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+  if ((chdir("/")) < 0) {
+    exit(EXIT_FAILURE);
+  }
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
 
-            // Clear the "START_GAME" variable
-            setenv("START_GAME", "", 1);
-        } else {
-            // Wait a few seconds before checking again
-            sleep(60);
-        }
+  // Loop indefinitely
+  while (1) {
+    // Check if ESP32 is present
+    int esp32_present = check_esp32();
+    if (esp32_present) {
+      // Start the Tic-Tac-Toe game
+      printf("Starting TicTacToe game...\n");
+      main();
     }
-}
 
-int main()
-{
-    // Ignore signals that would cause the daemon to terminate
-    signal(SIGINT, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+    // Sleep for 1 second before checking again
+    sleep(1);
+  }
 
-    // Run the daemon
-    checkStart();
-
-    return 0;
+  return 0;
 }
